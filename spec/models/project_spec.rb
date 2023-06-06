@@ -1,19 +1,35 @@
 require 'rails_helper'
 
 RSpec.describe Project, type: :model do
-  it "does not allow duplidate project name per user" do
-    user = User.create(
+  before do
+    @user = User.create(
       first_name: "Joe",
       last_name:  "Tster",
       email:      "tester@example.com",
       password:   "dottle-nouveau-pavilion-tights-furze",
     )
+  end
 
-    user.projects.create(
+  it "is valid with a owner and name" do
+    project = Project.new(
+      name: "This is a sample project.",
+      owner: @user,
+    )
+    expect(project).to be_valid
+  end
+
+  it "is invalid without a name" do
+    project = Project.new(name: nil)
+    project.valid?
+    expect(project.errors[:name]).to include("can't be blank")
+  end
+
+  it "does not allow duplidate project name per user" do
+    @user.projects.create(
       name: "Test Project"
     )
 
-    new_project = user.projects.build(
+    new_project = @user.projects.build(
       name: "Test Project"
     )
 
